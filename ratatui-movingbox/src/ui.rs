@@ -1,3 +1,6 @@
+
+use std::{error::Error, io};
+
 use ratatui::style::{
     Style,
     Color
@@ -10,8 +13,7 @@ use ratatui::widgets::{
     Borders,
     Clear
 };
-use ratatui::Frame;
-use ratatui::layout::{Constraint, Direction, Layout, Rect};
+use ratatui::{Frame};
 
 use crate::app::{App};
 
@@ -50,3 +52,4 @@ pub fn ui(frame: &mut Frame, app: &App) {
     frame.render_widget(game_canvas, frame.area());
 
 }
+
