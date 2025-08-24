@@ -212,6 +212,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
         .title("This is the main block")
         .borders(Borders::ALL)
         .style(Style::default().bg(Color::DarkGray));
+
     let rect_player = Rectangle {
         x: app.character.position.get_x(),
         y: app.character.position.get_y(),
@@ -219,11 +220,12 @@ pub fn ui(frame: &mut Frame, app: &App) {
         height: app.character.height,
         color: Color::Red
     };
+
     let game_canvas = Canvas::default()
         .block(game_block)
         .marker(ratatui::symbols::Marker::Braille)
-        .x_bounds([0.0, 50.0])
-        .y_bounds([0.0, 50.0])
+        .x_bounds([0.0, 100.0])
+        .y_bounds([0.0, 100.0])
         .paint(|ctx| {
             ctx.draw(&rect_player);
         })

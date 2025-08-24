@@ -86,6 +86,11 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
                     KeyCode::Char('q') => {
                         app.current_screen = CurrentScreen::Exiting;
                     }
+                    // FOR SQUARE GAME
+                    KeyCode::Left =>  { app.character.move_left(); }
+                    KeyCode::Right => { app.character.move_right(); }
+                    KeyCode::Up => { app.character.move_up(); }
+                    KeyCode::Down => { app.character.move_down(); }
                     _ => {}
                 },
                 CurrentScreen::Exiting => match key.code {
