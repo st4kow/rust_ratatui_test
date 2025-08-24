@@ -1,4 +1,4 @@
-use std::{error::Error, io, time::Duration};
+use std::{error::Error, io};
 
 use ratatui::{
     backend::{Backend, CrosstermBackend},
@@ -17,7 +17,7 @@ mod character;
 mod position;
 
 use crate::{
-    app::{App, CurrentScreen, CurrentlyEditing},
+    app::{App},
     ui::ui
 };
 
@@ -51,11 +51,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     terminal.show_cursor()?;
 
 
-    /* Check the result of the app and decide if printing needed */
+    /* Check the result of the app and decide what to do */
     /* We do this after we went back to the great old terminal */
     if let Ok(do_print) = res {
         if do_print {
-            app.print_json()?;
+            // todo();
         }
     } else if let Err(err) = res {
         println!("{err:?}");
@@ -77,83 +77,14 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
             if key.kind == event::KeyEventKind::Release {
                 continue; // Skip events that are not KeyEventKind::Press
             }
-            match app.current_screen { // match for different screens
-                CurrentScreen::Main => match key.code {
-                    KeyCode::Char('e') => {
-                        app.current_screen = CurrentScreen::Editing;
-                        app.currently_editing = Some(CurrentlyEditing::Key);
-                    }
-                    KeyCode::Char('q') => {
-                        app.current_screen = CurrentScreen::Exiting;
-                    }
-                    // FOR SQUARE GAME
-                    KeyCode::Left =>  { app.character.move_left(); }
-                    KeyCode::Right => { app.character.move_right(); }
-                    KeyCode::Up => { app.character.move_up(); }
-                    KeyCode::Down => { app.character.move_down(); }
-                    _ => {}
-                },
-                CurrentScreen::Exiting => match key.code {
-                    KeyCode::Char('y') => {
-                        return Ok(true);
-                    }
-                    KeyCode::Char('n') | KeyCode::Char('q') => {
-                        return Ok(false);
-                    }
-                    _ => {}
-                },
-                CurrentScreen::Editing if key.kind == KeyEventKind::Press => {
-                    match key.code {
-                        KeyCode::Enter => {
-                        if let Some(editing) = &app.currently_editing {
-                            match editing {
-                                CurrentlyEditing::Key => {
-                                    app.currently_editing = Some(CurrentlyEditing::Value);
-                                }
-                                CurrentlyEditing::Value => {
-                                    app.save_key_value();
-                                    app.current_screen = CurrentScreen::Main;
-                                    }
-                                }
-                            }
-                        }
-                        KeyCode::Backspace => {
-                            if let Some(editing) = &app.currently_editing {
-                                match editing {
-                                    CurrentlyEditing::Key => {
-                                        app.key_input.pop();
-                                    }
-                                    CurrentlyEditing::Value => {
-                                        app.value_input.pop();
-                                    }
-                                }
-                            }
-                        }
-                        KeyCode::Esc => {
-                            app.current_screen = CurrentScreen::Main;
-                            app.currently_editing = None;
-                        }
-                        KeyCode::Tab => {
-                            app.toggle_editing();
-                        }
-                        KeyCode::Char(value) => {
-                            if let Some(editing) = &app.currently_editing {
-                                match editing {
-                                    CurrentlyEditing::Key => {
-                                        app.key_input.push(value);
-                                    }
-                                    CurrentlyEditing::Value => {
-                                        app.value_input.push(value);
-                                    }
-                                }
-                            }
-                        }
-                        _ => {}
-                    }
-                }
+            match key.code {
+                KeyCode::Left =>  { app.character.move_left(); }
+                KeyCode::Right => { app.character.move_right(); }
+                KeyCode::Up => { app.character.move_down(); } // TODO naming
+                KeyCode::Down => { app.character.move_up(); } // TODO naming
+                KeyCode::Char('q') => { return Ok(false); }
                 _ => {}
             }
         }
- 
     }
 }
