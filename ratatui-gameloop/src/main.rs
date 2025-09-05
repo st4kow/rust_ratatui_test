@@ -15,8 +15,7 @@ mod terminal;
 mod frame_data;
 
 use crate::{
-    app::{App},
-    ui::ui
+    app::App, frame_data::FrameData, ui::ui
 };
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -37,20 +36,23 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<(), Box<dyn Error>> {
+
+    /* Define FrameData for future frame inforamtion tracting */
+    let mut fd = FrameData::init();
+
     let mut stop = false;
     while ! stop {
-        //Get current time information
-        let now: Instant = Instant::now();
-        
+        /* Update FrameData to provide information of last frame duration */
+        fd.update();
+
         // Draw the UI
         terminal.draw(|f| ui(f, app))?;
 
         // Handling interaction
         stop = terminal::handle_inputs(app)?;
 
-        let elapsed_us: u128 = now.elapsed().as_micros();
-        app.last_frame_time = elapsed_us;
-
+        // TEST TODO
+        app.last_frame_time = fd.last_frame_time_us();
 
     }
 

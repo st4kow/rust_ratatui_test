@@ -9,7 +9,6 @@ impl App {
     pub fn new() -> App {
         App {
             character: Character::new(),
-            frame_data: FrameData::new(),
             last_frame_time: 0u128
         }
     }
