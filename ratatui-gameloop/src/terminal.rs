@@ -1,5 +1,6 @@
 use std::{io, error::Error};
 use std::time::{Duration};
+use ratatui::crossterm::event::KeyEvent;
 use ratatui::{crossterm};
 use ratatui::{ backend::CrosstermBackend,
     crossterm::{
@@ -53,7 +54,7 @@ pub fn restore_terminal(terminal:  &mut Terminal<CrosstermBackend<io::Stderr>>) 
 pub fn handle_inputs(app: &mut App) -> Result<bool, Box<dyn Error>> {
 
     // Wait 1ms for a new event. It there is no event, skip event for this frame
-    let have_event: bool = event::poll(Duration::from_millis(1))?;
+    let have_event: bool = event::poll(Duration::from_millis(0))?;
     if ! have_event { return Ok(false) };
 
     // event::read() is guranteed to be non blockking if have_event
@@ -70,5 +71,33 @@ pub fn handle_inputs(app: &mut App) -> Result<bool, Box<dyn Error>> {
             _ => {}
         }
     }
-Ok(false)
+    Ok(false)
+}
+
+pub fn handle_inputs_experiment(app: &mut App) -> Result<bool, Box<dyn Error>> {
+
+    //let mut have_event: bool = false;
+    let mut event: Option<Event> = None;
+    while event::poll(Duration::from_millis(1))? {
+        event = Some(event::read()?);
+    }
+    if let None = event { return Ok(false) };
+
+    //If we get here, we can be sure that we have a valied event
+
+    // event::read() is guranteed to be non blockking if have_event
+    if let Some(Event::Key(key)) = event { 
+        if key.kind == event::KeyEventKind::Release {
+            return Ok((false));
+        }
+        match key.code {
+            KeyCode::Left =>  { app.character.move_left(); }
+            KeyCode::Right => { app.character.move_right(); }
+            KeyCode::Up => { app.character.move_down(); } // TODO naming
+            KeyCode::Down => { app.character.move_up(); } // TODO naming
+            KeyCode::Char('q') => { return Ok(true); }
+            _ => {}
+        }
+    }
+    Ok(false)
 }

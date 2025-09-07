@@ -1,6 +1,6 @@
 use std::time::{Instant};
 
-pub static TARGET_FPS : u128 = 60; 
+pub static TARGET_FPS : u128 = 1; 
 pub static TARGET_MSPS: u128 = ((1.0 / TARGET_FPS as f64) * 1000.0 ) as u128;
 pub static TARGET_USPS: u128 = ((1.0 / TARGET_FPS as f64) * 1000.0 * 1000.0 ) as u128;
 
@@ -65,7 +65,7 @@ impl FrameData {
     /// # Target time to sleep to meet target FPS
     /// Return time to sleep
     pub fn target_tsleep_us(&self) -> u128 {
-        (TARGET_USPS - self.last_frame_time_us).clamp(0, 1000 * 1000) // TOD decide max
+        (TARGET_USPS as i128 - self.last_frame_time_us as i128).clamp(0, 1000 * 1000) as u128 // TODO decide max
     }
 }
 

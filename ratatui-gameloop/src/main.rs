@@ -1,4 +1,4 @@
-use std::{error::Error, io};
+use std::{error::Error, io, thread, time};
 
 use ratatui::{
     backend::{Backend},
@@ -39,7 +39,6 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<(), 
 
     /* Define FrameData for future frame inforamtion tracting */
     let mut fd = FrameData::init();
-
     let mut stop = false;
     while ! stop {
         /* Update FrameData to provide information of last frame duration */
@@ -54,6 +53,8 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<(), 
         // TEST TODO
         app.last_frame_time = fd.last_frame_time_us();
 
+        // Sleep to meet requ
+        thread::sleep(time::Duration::from_micros(fd.target_tsleep_us() as u64));
     }
 
     Ok(())
