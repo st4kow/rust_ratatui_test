@@ -48,7 +48,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<(), 
         terminal.draw(|f| ui(f, app))?;
 
         // Handling interaction
-        stop = terminal::handle_inputs(app)?;
+        stop = terminal::handle_inputs_experiment(app)?;
 
         // TEST TODO
         app.last_frame_time = fd.last_frame_time_us();

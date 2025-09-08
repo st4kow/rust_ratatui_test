@@ -1,6 +1,6 @@
 use std::time::{Instant};
 
-pub static TARGET_FPS : u128 = 1; 
+pub static TARGET_FPS : u128 = 60; 
 pub static TARGET_MSPS: u128 = ((1.0 / TARGET_FPS as f64) * 1000.0 ) as u128;
 pub static TARGET_USPS: u128 = ((1.0 / TARGET_FPS as f64) * 1000.0 * 1000.0 ) as u128;
 

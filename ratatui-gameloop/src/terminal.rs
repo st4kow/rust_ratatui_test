@@ -1,3 +1,4 @@
+use std::error;
 use std::{io, error::Error};
 use std::time::{Duration};
 use ratatui::crossterm::event::KeyEvent;
@@ -51,53 +52,72 @@ pub fn restore_terminal(terminal:  &mut Terminal<CrosstermBackend<io::Stderr>>) 
     Ok(())
 }
 
-pub fn handle_inputs(app: &mut App) -> Result<bool, Box<dyn Error>> {
-
-    // Wait 1ms for a new event. It there is no event, skip event for this frame
-    let have_event: bool = event::poll(Duration::from_millis(0))?;
-    if ! have_event { return Ok(false) };
-
-    // event::read() is guranteed to be non blockking if have_event
-    if let Event::Key(key) = event::read()? { 
-        if key.kind == event::KeyEventKind::Release {
-            return Ok((false));
-        }
-        match key.code {
-            KeyCode::Left =>  { app.character.move_left(); }
-            KeyCode::Right => { app.character.move_right(); }
-            KeyCode::Up => { app.character.move_down(); } // TODO naming
-            KeyCode::Down => { app.character.move_up(); } // TODO naming
-            KeyCode::Char('q') => { return Ok(true); }
-            _ => {}
-        }
-    }
-    Ok(false)
-}
-
+/// # Call this function to handle user inputs, user events
+/// 
 pub fn handle_inputs_experiment(app: &mut App) -> Result<bool, Box<dyn Error>> {
 
-    //let mut have_event: bool = false;
-    let mut event: Option<Event> = None;
-    while event::poll(Duration::from_millis(1))? {
-        event = Some(event::read()?);
-    }
-    if let None = event { return Ok(false) };
+    let events: Option<Vec<Event>> = collect_events()?;
 
-    //If we get here, we can be sure that we have a valied event
+    /* If we have no event, simple return */
+    if let None = events { return Ok(false) } 
 
-    // event::read() is guranteed to be non blockking if have_event
-    if let Some(Event::Key(key)) = event { 
-        if key.kind == event::KeyEventKind::Release {
-            return Ok((false));
-        }
-        match key.code {
-            KeyCode::Left =>  { app.character.move_left(); }
-            KeyCode::Right => { app.character.move_right(); }
-            KeyCode::Up => { app.character.move_down(); } // TODO naming
-            KeyCode::Down => { app.character.move_up(); } // TODO naming
-            KeyCode::Char('q') => { return Ok(true); }
-            _ => {}
+    /* From this point, it is sure that we have valid events */
+    let events: Vec<Event> = events.unwrap();
+
+    /* Do what needs to be done at specific events */
+    for event in events.iter() {
+        if let Event::Key(key) = event { 
+            if key.kind == event::KeyEventKind::Release {
+                return Ok(false);
+            }
+            match key.code {
+                KeyCode::Left =>  { app.character.move_left(); }
+                KeyCode::Right => { app.character.move_right(); }
+                KeyCode::Up => { app.character.move_down(); } // TODO naming
+                KeyCode::Down => { app.character.move_up(); } // TODO naming
+                KeyCode::Char('q') => { return Ok(true); }
+                _ => {}
+            }
         }
     }
     Ok(false)
 }
+
+/// # Returns a vector containing the events in this frame
+/// Return vector contains all the events that heppened during this frame
+fn collect_events() -> Result<Option<Vec<Event>>, Box<dyn Error>> {
+    let mut events: Vec<event::Event> = Vec::new();
+    while event::poll(Duration::from_millis(0))? {
+        let mut event = event::read()?;
+        //unique_events.try_add(event);
+        events.push(event);
+    }
+
+    if events.len() == 0 {
+        return Ok(None);
+    }
+
+    Ok(Some(events))
+}
+
+/*
+pub struct unique_events {
+    event_list : Vec<event::Event>
+}
+impl unique_events {
+    pub fn new() -> Self {
+        unique_events { event_list: Vec::new() }
+    }
+    pub fn try_add(&mut self, event: event::Event) -> &mut Self {
+        self.event_list.push(event);
+        self
+    }
+    pub fn get_events(&self) -> &Vec<event::Event> {
+        &self.event_list
+    }
+    pub fn clear(&mut self) -> &mut Self {
+        self.event_list.clear();
+        self
+    }
+}
+*/
