@@ -54,7 +54,7 @@ pub fn restore_terminal(terminal:  &mut Terminal<CrosstermBackend<io::Stderr>>) 
 
 /// # Call this function to handle user inputs, user events
 /// 
-pub fn handle_inputs_experiment(app: &mut App) -> Result<bool, Box<dyn Error>> {
+pub fn handle_inputs(app: &mut App) -> Result<bool, Box<dyn Error>> {
 
     let events: Option<Vec<Event>> = collect_events()?;
 

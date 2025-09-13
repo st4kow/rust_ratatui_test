@@ -42,7 +42,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
 
     let game_canvas = Canvas::default()
         .block(game_block)
-        .marker(ratatui::symbols::Marker::Braille)
+        .marker(ratatui::symbols::Marker::HalfBlock)
         .x_bounds([0.0, 100.0]) //Scaling 0 - 100%
         .y_bounds([0.0, 100.0]) // Scaling 0 - 100%
         .paint(|ctx| {

@@ -44,17 +44,17 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<(), 
         /* Update FrameData to provide information of last frame duration */
         fd.update();
 
-        // Draw the UI
-        terminal.draw(|f| ui(f, app))?;
-
-        // Handling interaction
-        stop = terminal::handle_inputs_experiment(app)?;
-
-        // TEST TODO
-        app.character.animate(*fd.get_scale());
+        /* Update the whole application */
+        app.update_entities(*fd.get_scale());
         app.last_frame_time = fd.last_frame_time_us();
 
-        // Sleep to meet requ
+        // Handling interaction
+        stop = terminal::handle_inputs(app)?;
+
+        // Draw the UI, render
+        terminal.draw(|f| ui(f, app))?;
+
+        // Sleep to meet requ FPS
         thread::sleep(time::Duration::from_micros(fd.target_tsleep_us() as u64));
     }
 

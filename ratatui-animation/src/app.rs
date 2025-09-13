@@ -14,5 +14,9 @@ impl App {
     }
 
     /****** HELPER FUNCTIONS ******/
-    
+
+    pub fn update_entities(&mut self, scaler : f64) -> &mut Self {
+        self.character.update(scaler);
+        self
+    }
 }
