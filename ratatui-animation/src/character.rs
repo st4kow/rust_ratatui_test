@@ -3,7 +3,7 @@ use crate::{frame_data, position::Position};
 
 #[derive(Default)]
 pub struct Character {
-    pub position: Position,
+    pub position: Position, /* Position of the origin, in this case the middle of the character (rectangle) */
     pub speed: f64, // speed in units/event
     pub width: f64,
     pub height: f64,
@@ -31,11 +31,13 @@ enum AnimType {
     RIGHT
 }
 
-const ANIM_FRAME_SLICES: u32 = 10000;
+const ANIM_FRAME_SLICES: u32 = 10000; 
 const ANIM_TIME_MOVEMENT_TO_SMALL_MS: u16 = 200;
-const ANIM_TIME_MOVEMENT_SHIFT_MS: u16 = 200;
+const ANIM_TIME_MOVEMENT_SHIFT_MS: u16 = 400;
 const ANIM_TIME_MOVEMENT_TO_BIG_MS: u16 = 200;
-const MOVEMENT_UNIT: u16 = 9;
+const WIDTH_SMALL: u32 = 3; const HEIGHT_SMALL: u32 = 3;
+const WIDTH_BIG: u32 = 10; const HEIGHT_BIG: u32 = 10;
+const MOVEMENT_UNIT: u32 = WIDTH_BIG; /* Moving on a grid */
 
 /* Deriving commulated time info for further use */
 const ANIM_TIME_FULL_MS: u16 = ANIM_TIME_MOVEMENT_TO_SMALL_MS +
@@ -47,21 +49,19 @@ const ANIM_SLICE_TIME_US: u16 = ((ANIM_TIME_FULL_MS as f64 / ANIM_FRAME_SLICES a
 const SLICE_FROM_MOVEMENT_TO_SMALL: u32 = 0;
 const SLICE_FROM_MOVEMENT_SHIFT: u32 = ANIM_TIME_MOVEMENT_TO_SMALL_MS as u32 * 1000 / ANIM_SLICE_TIME_US as u32
     +SLICE_FROM_MOVEMENT_TO_SMALL;
-const SLICE_FROM_MOVEMENT_TO_BIG: u32 = ANIM_TIME_MOVEMENT_TO_BIG_MS as u32 * 1000 / ANIM_SLICE_TIME_US as u32
+const SLICE_FROM_MOVEMENT_TO_BIG: u32 = ANIM_TIME_MOVEMENT_SHIFT_MS as u32 * 1000 / ANIM_SLICE_TIME_US as u32
     +SLICE_FROM_MOVEMENT_SHIFT;
-
-const WIDTH_SMALL: u32 = 3; const HEIGHT_SMALL: u32 = 3;
-const WIDTH_BIG: u32 = 6; const HEIGHT_BIG: u32 = 6;
-
 
 impl Character {
     pub fn new() -> Character { 
         let mut character = Character::default();
         character.speed = 1.0;
-        character.width = 5.0;
-        character.height = 5.0;
+        character.width = WIDTH_BIG as f64;
+        character.height = HEIGHT_BIG as f64;
         character.anim_type = AnimType::NONE;
-        character.position.set_x(30.0); character.position.set_y(30.0);
+
+        /* Placing character at the bottom left corner */
+        character.position.set_x(character.width/2.0); character.position.set_y(character.width/2.0);
         character
     }
     pub fn move_up(&mut self ) -> &mut Self {
@@ -110,7 +110,9 @@ impl Character {
         let mut anim_slice_to_render: u32 = self.anim_slice + current_frame_num_slices;
 
         /* Overflow of animation slice counter, meaning we are ready */
-        if anim_slice_to_render > ANIM_FRAME_SLICES { anim_slice_to_render = 0 };
+        if anim_slice_to_render > ANIM_FRAME_SLICES { 
+            anim_slice_to_render = ANIM_FRAME_SLICES /* Render the last slice */ 
+        };
 
         if anim_slice_to_render >= SLICE_FROM_MOVEMENT_TO_BIG { /* Animation of transition back to big */
             let anim_phase = calc_anim_phase(SLICE_FROM_MOVEMENT_TO_BIG, ANIM_FRAME_SLICES, anim_slice_to_render);
@@ -163,6 +165,8 @@ impl Character {
             /* Updating vertical and horizontal offset */ // TODO Wrong, becasue 0 frame runs again at the end, but target position not updated
             let horizontal_offset = ((WIDTH_BIG - WIDTH_SMALL) as f64 * (1.0-anim_phase)) / 2.0;
             let vertical_offset = ((HEIGHT_BIG - HEIGHT_SMALL) as f64 * (1.0-anim_phase)) / 2.0;
+
+            //BUG BUG BUG
             //self.position.set_x(self.anim_start_position.get_x() + horizontal_offset);
             //self.position.set_y(self.anim_start_position.get_y() - vertical_offset);
         }
@@ -170,9 +174,8 @@ impl Character {
         /* Update enimation slice for next render */
         self.anim_slice = anim_slice_to_render;
         
-        /* Set animation to false if slice 0 was rendered (animation was done) */
-        // TODO possible issue, if the first iteration is faster than 1 animation slice
-        if anim_slice_to_render == 0 {
+        /* Set animation to false if last slice was rendered (animation was done) */
+        if anim_slice_to_render == ANIM_FRAME_SLICES {
             self.animating = false;
             self.anim_type = AnimType::NONE;
         }
@@ -180,6 +183,9 @@ impl Character {
     }
 
     fn start_animation(&mut self) -> () {
+
+        /* Reset current animation slice to 0 */
+        self.anim_slice = 0;
 
         /* Update informmation at the the start of an animation */
         self.anim_start_height = self.height;

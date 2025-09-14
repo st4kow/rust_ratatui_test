@@ -32,9 +32,12 @@ pub fn ui(frame: &mut Frame, app: &App) {
         .borders(Borders::ALL)
         .style(Style::default().bg(Color::DarkGray));
 
+    /* Building rectangle for the character */
+    let x = app.character.position.get_x() - (app.character.width / 2.0);
+    let y = app.character.position.get_y() - (app.character.height / 2.0); //TODO why this works? what does x,y mean?
     let rect_player = Rectangle {
-        x: app.character.position.get_x(),
-        y: app.character.position.get_y(),
+        x: x,
+        y: y,
         width: app.character.width,
         height: app.character.height,
         color: Color::Red
