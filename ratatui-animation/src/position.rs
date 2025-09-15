@@ -1,15 +1,16 @@
-
 #[derive(Default)]
+#[derive(Clone,Copy)]
 pub struct Position {
     x: f64,
     y: f64,
     z: f64
 }
 
+#[allow(dead_code)]
 impl Position {
 
 
-    pub fn new() -> Position { Position{ x : 0.0, y : 0.0, z : 0.0 } } 
+    pub fn new() -> Position { Self::default() } 
 
 
     pub fn incr_x(&mut self, val: f64) -> &mut Self {
@@ -65,7 +66,5 @@ impl Position {
     pub fn set(&mut self, val: [f64; 3] ) -> &mut Self {
         self.set_x(val[0]).set_y(val[1]).set_z(val[2])
     }
-
-
 }
 

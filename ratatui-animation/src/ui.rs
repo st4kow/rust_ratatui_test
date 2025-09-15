@@ -1,6 +1,4 @@
 
-use std::{error::Error, io};
-
 use ratatui::style::{
     Style,
     Color

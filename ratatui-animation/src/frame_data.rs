@@ -11,6 +11,7 @@ pub struct FrameData {
     scale: f64,
 }
 
+#[allow(dead_code)]
 impl FrameData {
 
     /// # Initialize FrameData

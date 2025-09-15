@@ -1,11 +1,9 @@
-use std::{error::Error, io, thread, time};
+use std::{error::Error, thread, time};
 
 use ratatui::{
     backend::{Backend},
     Terminal,
 };
-
-use std::time::{Duration, Instant};
 
 mod app;
 mod ui;
@@ -13,6 +11,7 @@ mod character;
 mod position;
 mod terminal;
 mod frame_data;
+mod inputs;
 
 use crate::{
     app::App, frame_data::FrameData, ui::ui
@@ -49,7 +48,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<(), 
         app.last_frame_time = fd.last_frame_time_us();
 
         // Handling interaction
-        stop = terminal::handle_inputs(app)?;
+        stop = inputs::handle_inputs(app)?;
 
         // Draw the UI, render
         terminal.draw(|f| ui(f, app))?;
